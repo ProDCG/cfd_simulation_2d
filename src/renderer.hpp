@@ -11,10 +11,12 @@ public:
         circle.setOrigin(1.0f, 1.0f);
 
         const auto& particles = solver.getParticles();
-        for (auto& particle: particles) {
-            circle.setPosition(particle.position);
-            circle.setScale(particle.radius, particle.radius);
-            circle.setFillColor(particle.color);
+        const auto& radius = solver.getRadius();
+
+        for (int i = 0; i < solver.getParticleCount(); i++) {
+            circle.setPosition(particles[i]);
+            circle.setScale(radius, radius);
+            circle.setFillColor(sf::Color::White);
             m_target.draw(circle);
         }
     }

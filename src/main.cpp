@@ -25,7 +25,7 @@ int main()
     std::uniform_real_distribution<> distrib(0, window_width);
 
     for (int i = 0; i < 50; i++) {
-        solver.addParticle(sf::Vector2f(distrib(gen), distrib(gen)));
+        solver.addParticle(sf::Vector2f(distrib(gen), distrib(gen)), sf::Vector2f(0.0f, 0.0f), 0.0f);
     }
 
     sf::Clock clock;
@@ -39,5 +39,8 @@ int main()
         window.clear(sf::Color::Black);
         renderer.render(solver);
         window.display();
+
+        std::cout << "0 " << solver.getParticles()[0].x << std::endl;
+//        break;
     }
 }
