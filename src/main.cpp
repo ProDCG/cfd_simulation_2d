@@ -5,6 +5,7 @@
 #include "solver.hpp"
 #include "renderer.hpp"
 
+/*
 int main()
 {
     constexpr int32_t window_width = 500;
@@ -44,3 +45,4 @@ int main()
 //        break;
     }
 }
+*/

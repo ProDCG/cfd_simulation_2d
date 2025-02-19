@@ -13,12 +13,19 @@ FetchContent_Declare(SFML
     SYSTEM)
 FetchContent_MakeAvailable(SFML)
 
+# include_directories(header)
+
+# file(GLOB SOURCES "src/*.cpp")
 add_executable(main src/main.cpp
         src/util.cpp
         src/vec2.cpp
         src/renderer.hpp
         src/solver.hpp
+        src/main2.cpp
+        # src/main3.cpp
+        src/triangulation.hpp
 )
+# add_executable()
 target_link_libraries(main PRIVATE sfml-graphics)
 target_compile_features(main PRIVATE cxx_std_17)
 
