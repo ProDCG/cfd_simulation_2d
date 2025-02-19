@@ -2,7 +2,6 @@
 #include <iostream>
 #include <vector>
 #include <random>
-// #include "solver.hpp"
 #include "renderer.hpp"
 #include "triangulation.hpp"
 
@@ -24,16 +23,19 @@ int main()
 
     DelaunayTriangulation delaunay;
     
-    for (int i = 0; i < 100; i++) {
+    for (int i = 0; i < 45; i++) {
         delaunay.addPoint(dist_x(eng), dist_y(eng));
     }
 
     delaunay.delaunayTriangulate();
+    // auto triangles = delaunay.getTriangles();
+    auto edges = delaunay.getEdges();
 
-    std::cout << "Triangle Count: " << delaunay.getTriangles().size() << '\n';
-    std::cout << "Edge Count: " << delaunay.getEdges().size() << '\n';
+    std::cout << "Edge Count: " << edges.size() << '\n';
+    // std::cout << "Edge Count: " << delaunay.getEdges().size() << '\n';
     std::cout << "Point Count: "<< delaunay.getPoints().size() << '\n';
 
+    // return -1;
     // DelaunayTriangulation dt;
 
     // dt.addPoint(100, 100);
@@ -44,17 +46,43 @@ int main()
 
     window.clear(sf::Color::Black);
 
-    for (const auto e : delaunay.getEdges()) {
+    for (const auto& e : delaunay.getEdges()) {
         sf::Vertex line[] = {
             sf::Vertex(sf::Vector2f(
-                (*e).p1->x,
-                (*e).p1->y)),
+                e.p1->x,
+                e.p1->y)),
             sf::Vertex(sf::Vector2f(
-                (*e).p2->x,
-                (*e).p2->y))
+                e.p2->x,
+                e.p2->y))
         };
 
         window.draw(line, 2, sf::Lines);
+    }
+
+    // for (auto& triangle : triangles) {
+    //     sf::ConvexShape convex;
+    //     convex.setPointCount(3);
+
+    //     // std::cout << triangle.p1->x << '\n';
+    //     // std::cout << triangle.p1->y << '\n'; 
+
+    //     convex.setPoint(0, sf::Vector2f(triangle.p1->x, triangle.p1->y));
+    //     convex.setPoint(1, sf::Vector2f(triangle.p2->x, triangle.p2->y));
+    //     convex.setPoint(2, sf::Vector2f(triangle.p3->x, triangle.p3->y));
+
+    //     convex.setFillColor(sf::Color::Transparent);
+    //     convex.setOutlineColor(sf::Color::White);
+    //     convex.setOutlineThickness(1);
+
+    //     window.draw(convex);
+    // }
+
+    for (auto& point : delaunay.getPoints()) {
+        sf::CircleShape circle;
+        circle.setPosition(sf::Vector2f(point.x, point.y));
+        circle.setFillColor(sf::Color::Red);
+        circle.setRadius(5);
+        window.draw(circle);
     }
 
     window.display();
