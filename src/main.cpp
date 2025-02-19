@@ -1,48 +1,84 @@
-#include <SFML/Graphics.hpp>
 #include <iostream>
 #include <vector>
+#include <iterator>
+#include <algorithm>
+#include <array>
 #include <random>
-#include "solver.hpp"
-#include "renderer.hpp"
+#include <chrono>
 
-/*
-int main()
+#include <SFML/Graphics.hpp>
+
+#include "vector2.h"
+#include "triangle.h"
+#include "delaunay.h"
+
+int main(int argc, char * argv[])
 {
-    constexpr int32_t window_width = 500;
-    constexpr int32_t window_height = 500;
-    const uint32_t frame_rate = 60;
+	int numberPoints = 60;
+	if (argc>1)
+	{
+		numberPoints = atoi(argv[1]);
+	}
 
-    sf::ContextSettings settings;
-    settings.antialiasingLevel = 1;
+	std::default_random_engine eng(std::random_device{}());
+	std::uniform_real_distribution<double> dist_w(0, 800);
+	std::uniform_real_distribution<double> dist_h(0, 800);
 
-    sf::RenderWindow window(sf::VideoMode(window_width, window_height), "FEM Fluid Simulation", sf::Style::Default, settings);
-    window.setFramerateLimit(frame_rate);
+	std::cout << "Generating " << numberPoints << " random points" << std::endl;
 
-    Solver solver;
-    Renderer renderer{window};
+	std::vector<dt::Vector2<double>> points;
+	for(int i = 0; i < numberPoints; ++i) {
+		points.push_back(dt::Vector2<double>{dist_w(eng), dist_h(eng)});
+	}
 
-    unsigned int seed = 1;
-    std::mt19937 gen(seed);
-    std::uniform_real_distribution<> distrib(0, window_width);
+	dt::Delaunay<double> triangulation;
+	const auto start = std::chrono::high_resolution_clock::now();
+	const std::vector<dt::Triangle<double>> triangles = triangulation.triangulate(points);
+	const auto end = std::chrono::high_resolution_clock::now();
+	const std::chrono::duration<double> diff = end - start;
 
-    for (int i = 0; i < 50; i++) {
-        solver.addParticle(sf::Vector2f(distrib(gen), distrib(gen)), sf::Vector2f(0.0f, 0.0f), 0.0f);
-    }
+	std::cout << triangles.size() << " triangles generated in " << diff.count()
+			<< "s\n";
+	const std::vector<dt::Edge<double>> edges = triangulation.getEdges();
 
-    sf::Clock clock;
-    while (window.isOpen()) {
-        sf::Event event;
-        while (window.pollEvent(event)) {
-            if (event.type == sf::Event::Closed || sf::Keyboard::isKeyPressed(sf::Keyboard::Escape)) window.close();
-        }
+	// SFML window
+	sf::RenderWindow window(sf::VideoMode(800, 800), "Delaunay triangulation");
+	window.setFramerateLimit(1);
 
-        solver.update();
-        window.clear(sf::Color::Black);
-        renderer.render(solver);
-        window.display();
+	std::vector<std::array<sf::Vertex, 2> > lines;
+	for(const auto &e : edges) {
+		const std::array<sf::Vertex, 2> line{{
+			sf::Vertex(sf::Vector2f(
+					static_cast<float>(e.v->x + 2.),
+					static_cast<float>(e.v->y + 2.))),
+			sf::Vertex(sf::Vector2f(
+					static_cast<float>(e.w->x + 2.),
+					static_cast<float>(e.w->y + 2.))),
+		}};
+		window.draw(line.data(), 2, sf::Lines);
+	}
 
-        std::cout << "0 " << solver.getParticles()[0].x << std::endl;
-//        break;
-    }
+	// Transform each points of each vector as a rectangle
+    for(const auto p : points) {
+		sf::RectangleShape s{sf::Vector2f(4, 4)};
+		s.setPosition(static_cast<float>(p.x), static_cast<float>(p.y));
+        s.setFillColor(sf::Color::Red);
+        s.setOutlineColor(sf::Color::Red);
+        s.setOutlineThickness(3);
+		window.draw(s);
+	}
+
+	window.display();
+
+	while (window.isOpen())
+	{
+		sf::Event event;
+		while (window.pollEvent(event))
+		{
+			if (event.type == sf::Event::Closed)
+				window.close();
+		}
+	}
+
+	return 0;
 }
-*/
